@@ -1,0 +1,116 @@
+{
+  "$id": "https://raw.githubusercontent.com/MrAlonas/nng/master/schema.json",
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "default": {},
+  "required": [
+    "lst",
+    "bnnd"
+  ],
+  "title": "The root schema",
+  "type": "object",
+  "properties": {
+    "lst": {
+      "$id": "#/properties/lst",
+      "default": [],
+      "description": "Указывается без минуса вначале.",
+      "title": "Список групп",
+      "type": "array",
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/lst/items",
+        "anyOf": [
+          {
+            "$id": "#/properties/lst/items/anyOf/0",
+            "default": 0,
+            "title": "Группа",
+            "type": "integer"
+          }
+        ]
+      }
+    },
+    "bnnd": {
+      "$id": "#/properties/bnnd",
+      "default": [],
+      "title": "Список заблокированных",
+      "type": "array",
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/bnnd/items",
+        "anyOf": [
+          {
+            "$id": "#/properties/bnnd/items/anyOf/0",
+            "default": {},
+            "required": [
+              "id",
+              "priority",
+              "name"
+            ],
+            "title": "Информация о заблокированном",
+            "type": "object",
+            "properties": {
+              "id": {
+                "$id": "#/properties/bnnd/items/anyOf/0/properties/id",
+                "default": 0,
+                "title": "ID страницы заблокированного",
+                "type": "integer"
+              },
+              "priority": {
+                "$id": "#/properties/bnnd/items/anyOf/0/properties/priority",
+                "default": 0,
+                "description": "0 – Белый, 1 – Зелёный, 2 – Бирюзовый, 3 – Оранжевый, 4 – Красный",
+                "title": "Приоритет блокировки",
+                "maximum": 4,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "warned": {
+                "$id": "#/properties/bnnd/items/anyOf/0/properties/warned",
+                "default": 0,
+                "description": "Количетво предупреждений или жалоб.",
+                "title": "Предупреждения",
+                "type": "integer"
+              },
+              "name": {
+                "$id": "#/properties/bnnd/items/anyOf/0/properties/name",
+                "default": "",
+                "description": "Имя и фамилия на момент блокировки.",
+                "title": "Имя",
+                "type": "string"
+              },
+              "deleted": {
+                "$id": "#/properties/bnnd/items/anyOf/0/properties/deleted",
+                "default": 0,
+                "description": "Удалён ли из списка заблокированных.",
+                "title": "Удалён",
+                "maximum": 1,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "compliant": {
+                "$id": "#/properties/bnnd/items/anyOf/0/properties/compliant",
+                "default": [],
+                "description": "ID страниц тех, кто пожаловался.",
+                "title": "Автор жалобы",
+                "type": "array",
+                "additionalItems": true,
+                "items": {
+                  "$id": "#/properties/bnnd/items/anyOf/0/properties/compliant/items",
+                  "anyOf": [
+                    {
+                      "$id": "#/properties/bnnd/items/anyOf/0/properties/compliant/items/anyOf/0",
+                      "default": 0,
+                      "title": "Пожаловался",
+                      "type": "integer"
+                    }
+                  ]
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": true
+}
