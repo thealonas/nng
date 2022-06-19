@@ -20,7 +20,7 @@ public partial class VkFramework
             .First().ScreenName ?? $"club{group}");
         return shortName;
     }
-    
+
     /// <summary>
     ///     Ищет пользователя по заданному ID
     /// </summary>
@@ -147,6 +147,11 @@ public partial class VkFramework
         return VkFrameworkExecution.ExecuteWithReturn(() => Api.Groups.GetById(ids, null, GroupsFields.All));
     }
 
+    /// <summary>
+    ///     Получить посты
+    /// </summary>
+    /// <param name="group">Группа</param>
+    /// <returns><see cref="IEnumerable{T}">Список</see> <see cref="Post">постов</see> сообщества</returns>
     public IEnumerable<Post> GetAllPosts(long group)
     {
         var posts = VkFrameworkExecution.ExecuteWithReturn(() => Api.Wall.Get(new WallGetParams

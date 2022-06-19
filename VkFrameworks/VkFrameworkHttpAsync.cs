@@ -48,7 +48,6 @@ public partial class VkFrameworkHttp
     /// </summary>
     /// <param name="group">Айди группы</param>
     /// <param name="state">Включена ли стена</param>
-    /// <param name="token">Токен сообщества или пользователя</param>
     /// <exception cref="VkFrameworkMethodException">Ошибка при переключении стены</exception>
     public async Task SwitchWallAsync(long group, bool state)
     {

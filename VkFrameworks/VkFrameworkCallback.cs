@@ -1,5 +1,5 @@
 ﻿using nng.Enums;
-using nng.Exceptions;
+using VkNet.Exception;
 using VkNet.Model;
 using VkNet.Model.RequestParams;
 using VkNet.Utils;
@@ -15,7 +15,7 @@ public partial class VkFramework
     /// <returns>
     ///     <see cref="CallbackServerItem">Список callback серверов</see>
     /// </returns>
-    /// <exception cref="VkFrameworkMethodException">Ошибка</exception>
+    /// <exception cref="VkApiException">Ошибка</exception>
     public IEnumerable<CallbackServerItem> GetGroupCallbackServes(Group group)
     {
         var servers = VkFrameworkExecution.ExecuteWithReturn(() => Api.Groups.GetCallbackServers((ulong) group.Id));
@@ -29,7 +29,7 @@ public partial class VkFramework
     /// <param name="server">Сервер</param>
     /// <param name="operation">Тип операции</param>
     /// <param name="value">Значение параметров</param>
-    /// <exception cref="VkFrameworkMethodException">Ошибка</exception>
+    /// <exception cref="VkApiException">Ошибка</exception>
     public void ChangeGroupCallbackSettings(Group group, CallbackServerItem server, CallbackOperation operation,
         bool value)
     {

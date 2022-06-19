@@ -1,5 +1,6 @@
 # nng
 
+[![Nuget](https://img.shields.io/nuget/v/nng)](https://www.nuget.org/packages/nng)
 [![License badge](https://img.shields.io/badge/license-EUPL-blue.svg)](LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/MrAlonas/nng)](https://github.com/MrAlonas/nng/issues)
 [![Build and release](https://github.com/MrAlonas/nng/actions/workflows/build.yml/badge.svg)](https://github.com/MrAlonas/nng/actions/workflows/build.yml)

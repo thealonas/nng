@@ -43,8 +43,15 @@ public partial class VkFramework
         CaptchaSecondsToWait = 10;
     }
 
+    /// <summary>
+    ///     Токен пользователя
+    /// </summary>
     public string Token { get; private set; }
 
+
+    /// <summary>
+    ///     Клиент для взаимодействия с API
+    /// </summary>
     public VkApi Api { get; private set; }
 
     /// <summary>
@@ -80,15 +87,6 @@ public partial class VkFramework
     public static void InvokeOnCaptchaWait(string methodName, int secondsToWait)
     {
         OnCaptchaWait?.Invoke(null, new CaptchaEventArgs(methodName, secondsToWait));
-    }
-
-    /// <summary>
-    ///     Сеттер для <see cref="CaptchaSecondsToWait">SecondsToWait</see>
-    /// </summary>
-    /// <param name="secondsToWait">Секунды</param>
-    public void SetSecondsToWait(int secondsToWait)
-    {
-        CaptchaSecondsToWait = secondsToWait;
     }
 
     /// <summary>
@@ -133,7 +131,7 @@ public partial class VkFramework
     /// <param name="user">Пользователь</param>
     /// <param name="group">Группа</param>
     /// <param name="role">Енум роли</param>
-    /// <exception cref="VkFrameworkMethodException">Ошибка при выдаче редактора</exception>
+    /// <exception cref="VkApiException">Ошибка при выдаче редактора</exception>
     public void EditManager(long user, long group, ManagerRole? role)
     {
         VkFrameworkExecution.Execute(() => Api.Groups.EditManager(new GroupsEditManagerParams
@@ -145,33 +143,6 @@ public partial class VkFramework
     }
 
     /// <summary>
-    ///     Аналогично <see cref="EditManager" />, но не использует <see cref="VkFrameworkExecution" />
-    /// </summary>
-    /// <param name="user">Пользователь</param>
-    /// <param name="group">Группа</param>
-    /// <param name="role">Енум роли</param>
-    /// <exception cref="CaptchaNeededException">Ошибка при каптче</exception>
-    /// <exception cref="VkFrameworkMethodException">Ошибка</exception>
-    [Obsolete("Use EditManager()")]
-    public void EditManagerLegacy(long user, long group, ManagerRole? role)
-    {
-        try
-        {
-            Api.Groups.EditManager(new GroupsEditManagerParams
-            {
-                UserId = user,
-                GroupId = group,
-                Role = role
-            });
-        }
-        catch (Exception e)
-        {
-            if (e is CaptchaNeededException) throw;
-            throw new VkFrameworkMethodException(nameof(EditManagerLegacy), e);
-        }
-    }
-
-    /// <summary>
     ///     Удалить фото
     /// </summary>
     /// <param name="photoId">Фото</param>
@@ -179,7 +150,7 @@ public partial class VkFramework
     ///     <para>Айди владельца</para>
     ///     Для сообществ — в начале минус
     /// </param>
-    /// <exception cref="VkFrameworkMethodException">Ошибка при удалении фото</exception>
+    /// <exception cref="VkApiException">Ошибка при удалении фото</exception>
     public void DeletePhoto(ulong photoId, ulong ownerId)
     {
         VkFrameworkExecution.Execute(() => Api.Photo.Delete(photoId, (long?) ownerId));
@@ -191,6 +162,7 @@ public partial class VkFramework
     /// <param name="groupId">Группа</param>
     /// <param name="postId">Пост</param>
     /// <exception cref="VkFrameworkMethodException">Ошибка при удалении поста</exception>
+    /// <exception cref="VkApiException">Ошибка при удалении поста</exception>
     public void DeletePost(long groupId, long postId)
     {
         var resp = VkFrameworkExecution.ExecuteWithReturn(() => Api.Wall.Delete(-groupId, postId));
@@ -202,13 +174,19 @@ public partial class VkFramework
     /// </summary>
     /// <param name="group">Группа</param>
     /// <param name="post">Пост</param>
-    /// <exception cref="VkFrameworkMethodException">Ошибка в методе</exception>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
     public void Repost(Group group, string post)
     {
         if (group == null) throw new NullReferenceException(nameof(group));
         Repost(group.Id, post);
     }
 
+    /// <summary>
+    ///     Репостит пост в сообществе
+    /// </summary>
+    /// <param name="group">Группа</param>
+    /// <param name="post">Пост</param>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
     public void Repost(long group, string post)
     {
         VkFrameworkExecution.Execute(() => Api.Wall.Repost(post, string.Empty, group, false));
@@ -220,7 +198,7 @@ public partial class VkFramework
     /// <param name="group">Группа</param>
     /// <param name="user">Юзер</param>
     /// <param name="com">Комментарий</param>
-    /// <exception cref="VkFrameworkMethodException">Ошибка при блоке</exception>
+    /// <exception cref="VkApiException">Ошибка при блокировке</exception>
     public void Block(Group group, User user, string com)
     {
         if (group == null) throw new NullReferenceException(nameof(group));
@@ -233,7 +211,7 @@ public partial class VkFramework
     /// <param name="group">Группа</param>
     /// <param name="user">Юзер</param>
     /// <param name="com">Комментарий</param>
-    /// <exception cref="VkFrameworkMethodException">Ошибка в методе</exception>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
     public void Block(long group, long user, string com)
     {
         VkFrameworkExecution.Execute(() => Api.Groups.BanUser(new GroupsBanUserParams
@@ -251,7 +229,7 @@ public partial class VkFramework
     /// </summary>
     /// <param name="group">Группа</param>
     /// <param name="user">Забаненный</param>
-    /// <exception cref="VkFrameworkMethodException">Ошибка в методе</exception>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
     public void UnBlock(Group group, User user)
     {
         if (group == null) throw new NullReferenceException(nameof(group));
@@ -263,7 +241,7 @@ public partial class VkFramework
     /// </summary>
     /// <param name="group">Группа</param>
     /// <param name="user">Забаненный</param>
-    /// <exception cref="VkFrameworkMethodException">Ошибка в методе</exception>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
     public void UnBlock(long group, long user)
     {
         VkFrameworkExecution.Execute(() => Api.Groups.Unban(group, user));
@@ -279,7 +257,7 @@ public partial class VkFramework
     /// <returns>
     ///     <see cref="WallContentAccess">Прошлое состояние стены</see>
     /// </returns>
-    /// <exception cref="VkFrameworkMethodException">Ошибка в методе</exception>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
     public WallContentAccess SetWall(long group, bool state)
     {
         var wall = state ? WallContentAccess.Restricted : WallContentAccess.Off;
@@ -294,7 +272,7 @@ public partial class VkFramework
     /// <returns>
     ///     <see cref="WallContentAccess">Прошлое состояние стены</see>
     /// </returns>
-    /// <exception cref="VkFrameworkMethodException">Ошибка в методе</exception>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
     public WallContentAccess SetWall(long group, WallContentAccess state)
     {
         var code = VkScripts.SetWallStatusVkScript

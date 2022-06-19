@@ -1,5 +1,4 @@
-﻿using nng.Exceptions;
-using VkNet.Exception;
+﻿using VkNet.Exception;
 
 namespace nng.VkFrameworks;
 
@@ -13,10 +12,10 @@ public static class VkFrameworkExecution
     /// <summary>
     ///     Выполнить действие с возвращаемым значением
     /// </summary>
-    /// <param name="func"></param>
+    /// <param name="func">Метод </param>
     /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    /// <exception cref="VkFrameworkMethodException"></exception>
+    /// <returns>Обобщенный объект, который должен вернуть передаваемый обобщенный метод</returns>
+    /// <exception cref="VkApiException">Ошибка при выполнении</exception>
     public static T ExecuteWithReturn<T>(Func<T> func)
     {
         if (func == null) throw new NullReferenceException(nameof(func));
@@ -36,9 +35,36 @@ public static class VkFrameworkExecution
             VkFramework.InvokeOnCaptchaWait(nameof(func), WaitTime);
             return ExecuteWithReturn(func);
         }
-        catch (Exception e)
+    }
+
+    /// <summary>
+    ///     Выполнить действие с возвращаемым значением
+    /// </summary>
+    /// <param name="func">Метод</param>
+    /// <param name="captchaWait">Таймаут при капче</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns>Обобщенный объект, который должен вернуть передаваемый обобщенный метод</returns>
+    /// <exception cref="CaptchaNeededException">Каптча</exception>
+    /// <exception cref="VkApiException">Ошибка при выполнении</exception>
+    public static T ExecuteWithReturn<T>(Func<T> func, bool captchaWait)
+    {
+        if (func == null) throw new NullReferenceException(nameof(func));
+        try
         {
-            throw new VkFrameworkMethodException(nameof(func), e);
+            var obj = func.Invoke();
+            return obj;
+        }
+        catch (TooManyRequestsException)
+        {
+            Task.Delay(WaitTime).Wait();
+            return ExecuteWithReturn(func);
+        }
+        catch (CaptchaNeededException)
+        {
+            if (!captchaWait) throw;
+            Task.Delay(WaitTime).Wait();
+            VkFramework.InvokeOnCaptchaWait(nameof(func), WaitTime);
+            return ExecuteWithReturn(func);
         }
     }
 
@@ -46,7 +72,7 @@ public static class VkFrameworkExecution
     ///     Выполнить действие без возвращаемого значения
     /// </summary>
     /// <param name="action">Действие</param>
-    /// <exception cref="VkFrameworkMethodException">Ошибка</exception>
+    /// <exception cref="VkApiException">Ошибка</exception>
     public static void Execute(Action action)
     {
         if (action == null) throw new NullReferenceException(nameof(action));
@@ -65,9 +91,33 @@ public static class VkFrameworkExecution
             VkFramework.InvokeOnCaptchaWait(nameof(action), WaitTime);
             Execute(action);
         }
-        catch (Exception e)
+    }
+
+    /// <summary>
+    ///     Выполнить действие без возвращаемого значения
+    /// </summary>
+    /// <param name="action">Действие</param>
+    /// <param name="captchaWait">Таймаут при капче</param>
+    /// <exception cref="CaptchaNeededException">Каптча</exception>
+    /// <exception cref="VkApiException">Ошибка</exception>
+    public static void Execute(Action action, bool captchaWait)
+    {
+        if (action == null) throw new NullReferenceException(nameof(action));
+        try
         {
-            throw new VkFrameworkMethodException(nameof(action), e);
+            action.Invoke();
+        }
+        catch (TooManyRequestsException)
+        {
+            Task.Delay(WaitTime).Wait();
+            Execute(action);
+        }
+        catch (CaptchaNeededException)
+        {
+            if (!captchaWait) throw;
+            Task.Delay(WaitTime).Wait();
+            VkFramework.InvokeOnCaptchaWait(nameof(action), WaitTime);
+            Execute(action);
         }
     }
 }
