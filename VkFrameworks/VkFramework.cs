@@ -281,4 +281,48 @@ public partial class VkFramework
         var response = VkFrameworkExecution.ExecuteWithReturn(() => Api.Execute.Execute(code));
         return (WallContentAccess) int.Parse(response["old_wall"].ToString());
     }
+
+    /// <summary>
+    ///     Получает статус пользователя
+    /// </summary>
+    /// <param name="user">Пользователь</param>
+    /// <returns>Статус</returns>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
+    public Status GetUserStatus(long user)
+    {
+        return VkFrameworkExecution.ExecuteWithReturn(() => Api.Status.Get(user));
+    }
+
+    /// <summary>
+    ///     Получает статус сообщества
+    /// </summary>
+    /// <param name="group">Сообщество</param>
+    /// <returns>Статус</returns>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
+    public Status GetGroupStatus(long group)
+    {
+        return VkFrameworkExecution.ExecuteWithReturn(() => Api.Status.Get(-group));
+    }
+
+    /// <summary>
+    ///     Устанавливает статус сообщества
+    /// </summary>
+    /// <param name="group">Сообщество</param>
+    /// <param name="status">Статус</param>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
+    public void SetGroupStatus(long group, string status)
+    {
+        VkFrameworkExecution.Execute(() => Api.Status.Set(status, group));
+    }
+
+
+    /// <summary>
+    ///     Устанавливает статус текущего пользователя
+    /// </summary>
+    /// <param name="status">Статус</param>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
+    public void SetCurrentUserStatus(string status)
+    {
+        VkFrameworkExecution.Execute(() => Api.Status.Set(status));
+    }
 }
