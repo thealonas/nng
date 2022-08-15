@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using nng.Models;
 
-namespace nng.Data;
+namespace nng.Helpers;
 
 public static class DataHelper
 {
