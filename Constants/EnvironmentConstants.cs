@@ -1,6 +1,6 @@
 ﻿namespace nng.Constants;
 
-public class EnvironmentConstants
+public static class EnvironmentConstants
 {
     public const string DataUrl = "DataURL";
     public const string LogUser = "LogUser";

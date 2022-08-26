@@ -18,23 +18,7 @@ public static class VkFrameworkExecution
     /// <exception cref="VkApiException">Ошибка при выполнении</exception>
     public static T ExecuteWithReturn<T>(Func<T> func)
     {
-        if (func == null) throw new NullReferenceException(nameof(func));
-        try
-        {
-            var obj = func.Invoke();
-            return obj;
-        }
-        catch (TooManyRequestsException)
-        {
-            Task.Delay(WaitTime).Wait();
-            return ExecuteWithReturn(func);
-        }
-        catch (CaptchaNeededException)
-        {
-            Task.Delay(WaitTime).Wait();
-            VkFramework.InvokeOnCaptchaWait(nameof(func), WaitTime);
-            return ExecuteWithReturn(func);
-        }
+        return BaseExecuteWithReturn(func, true);
     }
 
     /// <summary>
@@ -48,24 +32,7 @@ public static class VkFrameworkExecution
     /// <exception cref="VkApiException">Ошибка при выполнении</exception>
     public static T ExecuteWithReturn<T>(Func<T> func, bool captchaWait)
     {
-        if (func == null) throw new NullReferenceException(nameof(func));
-        try
-        {
-            var obj = func.Invoke();
-            return obj;
-        }
-        catch (TooManyRequestsException)
-        {
-            Task.Delay(WaitTime).Wait();
-            return ExecuteWithReturn(func);
-        }
-        catch (CaptchaNeededException)
-        {
-            if (!captchaWait) throw;
-            Task.Delay(WaitTime).Wait();
-            VkFramework.InvokeOnCaptchaWait(nameof(func), WaitTime);
-            return ExecuteWithReturn(func);
-        }
+        return BaseExecuteWithReturn(func, captchaWait);
     }
 
     /// <summary>
@@ -75,22 +42,7 @@ public static class VkFrameworkExecution
     /// <exception cref="VkApiException">Ошибка</exception>
     public static void Execute(Action action)
     {
-        if (action == null) throw new NullReferenceException(nameof(action));
-        try
-        {
-            action.Invoke();
-        }
-        catch (TooManyRequestsException)
-        {
-            Task.Delay(WaitTime).Wait();
-            Execute(action);
-        }
-        catch (CaptchaNeededException)
-        {
-            Task.Delay(WaitTime).Wait();
-            VkFramework.InvokeOnCaptchaWait(nameof(action), WaitTime);
-            Execute(action);
-        }
+        BaseExecute(action, true);
     }
 
     /// <summary>
@@ -102,6 +54,33 @@ public static class VkFrameworkExecution
     /// <exception cref="VkApiException">Ошибка</exception>
     public static void Execute(Action action, bool captchaWait)
     {
+        BaseExecute(action, captchaWait);
+    }
+
+    private static T BaseExecuteWithReturn<T>(Func<T> action, bool captchaWait)
+    {
+        if (action == null) throw new NullReferenceException(nameof(action));
+        try
+        {
+            var obj = action.Invoke();
+            return obj;
+        }
+        catch (TooManyRequestsException)
+        {
+            Task.Delay(WaitTime).Wait();
+            return BaseExecuteWithReturn(action, captchaWait);
+        }
+        catch (CaptchaNeededException)
+        {
+            if (!captchaWait) throw;
+            Task.Delay(WaitTime).Wait();
+            VkFramework.InvokeOnCaptchaWait(nameof(action), WaitTime);
+            return BaseExecuteWithReturn(action, captchaWait);
+        }
+    }
+
+    private static void BaseExecute(Action action, bool captchaWait)
+    {
         if (action == null) throw new NullReferenceException(nameof(action));
         try
         {
@@ -109,15 +88,15 @@ public static class VkFrameworkExecution
         }
         catch (TooManyRequestsException)
         {
-            Task.Delay(WaitTime).Wait();
-            Execute(action);
+            Task.Delay(WaitTime).GetAwaiter().GetResult();
+            BaseExecute(action, captchaWait);
         }
         catch (CaptchaNeededException)
         {
             if (!captchaWait) throw;
             Task.Delay(WaitTime).Wait();
             VkFramework.InvokeOnCaptchaWait(nameof(action), WaitTime);
-            Execute(action);
+            BaseExecute(action, captchaWait);
         }
     }
 }

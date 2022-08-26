@@ -48,7 +48,6 @@ public partial class VkFramework
     /// </summary>
     public string Token { get; private set; }
 
-
     /// <summary>
     ///     Клиент для взаимодействия с API
     /// </summary>
@@ -151,9 +150,9 @@ public partial class VkFramework
     ///     Для сообществ — в начале минус
     /// </param>
     /// <exception cref="VkApiException">Ошибка при удалении фото</exception>
-    public void DeletePhoto(ulong photoId, ulong ownerId)
+    public void DeletePhoto(ulong photoId, long ownerId)
     {
-        VkFrameworkExecution.Execute(() => Api.Photo.Delete(photoId, (long?) ownerId));
+        VkFrameworkExecution.Execute(() => Api.Photo.Delete(photoId, ownerId));
     }
 
     /// <summary>
