@@ -5,6 +5,7 @@ public static class EnvironmentConstants
     public const string DataUrl = "DataURL";
     public const string LogUser = "LogUser";
     public const string UserToken = "UserToken";
+    public const string BanComment = "BanComment";
     public const string DialogGroupId = "DialogGroupId";
     public const string DialogGroupToken = "DialogGroupToken";
     public const string DialogGroupSecret = "DialogGroupSecret";

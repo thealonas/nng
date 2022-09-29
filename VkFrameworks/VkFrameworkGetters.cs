@@ -1,5 +1,4 @@
 ﻿using nng.Containers;
-using nng.Exceptions;
 using nng.Models;
 using VkNet.Enums.Filters;
 using VkNet.Enums.SafetyEnums;
@@ -26,7 +25,7 @@ public partial class VkFramework
     /// </summary>
     /// <param name="id">ID</param>
     /// <returns>Объект пользователя</returns>
-    /// <exception cref="VkFrameworkMethodException">Ошибка в методе</exception>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
     public User GetUser(long id)
     {
         return VkFrameworkExecution.ExecuteWithReturn(() => Api.Users.Get(new List<long> {id}).First());
@@ -37,7 +36,7 @@ public partial class VkFramework
     /// </summary>
     /// <param name="id">ID</param>
     /// <returns>Объект пользователя</returns>
-    /// <exception cref="VkFrameworkMethodException">Ошибка в методе</exception>
+    /// <exception cref="VkApiException">Ошибка в методе</exception>
     public User GetUser(string id)
     {
         return VkFrameworkExecution.ExecuteWithReturn(() => Api.Users.Get(new List<string> {id}).First());
@@ -48,7 +47,7 @@ public partial class VkFramework
     /// </summary>
     /// <param name="id">ID</param>
     /// <returns>Объект пользователя</returns>
-    /// <exception cref="VkFrameworkMethodException"></exception>
+    /// <exception cref="VkApiException"></exception>
     public IEnumerable<User> GetUsers(IEnumerable<string> id)
     {
         return VkFrameworkExecution.ExecuteWithReturn(() => Api.Users.Get(id));
@@ -59,7 +58,7 @@ public partial class VkFramework
     /// </summary>
     /// <param name="groupId">Группа</param>
     /// <returns>Список юзеров</returns>
-    /// <exception cref="VkFrameworkMethodException">Ошибка</exception>
+    /// <exception cref="VkApiException">Ошибка</exception>
     public IEnumerable<User> GetBanned(long groupId)
     {
         var banned = VkFrameworkExecution.ExecuteWithReturn(() => Api.Groups.GetBanned(groupId, 0, 200));
@@ -80,6 +79,30 @@ public partial class VkFramework
     }
 
     /// <summary>
+    ///     Получить всех забаненных
+    /// </summary>
+    /// <param name="groupId">Группа</param>
+    /// <returns>Список юзеров</returns>
+    /// <exception cref="VkApiException">Ошибка</exception>
+    public IEnumerable<GetBannedResult> GetBannedAlt(long groupId)
+    {
+        var banned = VkFrameworkExecution.ExecuteWithReturn(() => Api.Groups.GetBanned(groupId, 0, 200));
+        if (banned.TotalCount <= 200)
+            return banned.Where(x => x.Type == SearchResultType.Profile);
+
+        var output = new List<GetBannedResult>();
+        var divisor = (int) MathF.Ceiling(200 / (float) banned.TotalCount) + 1;
+        for (var i = 0; i < divisor; i++)
+        {
+            var collection = VkFrameworkExecution.ExecuteWithReturn(() => Api.Groups.GetBanned(groupId, i * 200, 200))
+                .Where(x => x.Type == SearchResultType.Profile);
+            output.AddRange(collection);
+        }
+
+        return output;
+    }
+
+    /// <summary>
     ///     Возвращает информацию о сообществе через Execute
     ///     Забаненные пользователи возвращаются, но роли будут недоступны
     /// </summary>
@@ -87,7 +110,7 @@ public partial class VkFramework
     /// <returns>
     ///     <see cref="GroupDataLegacy" />
     /// </returns>
-    /// <exception cref="VkFrameworkMethodException">Ошибка при выполнении Execute скрипта</exception>
+    /// <exception cref="VkApiException">Ошибка при выполнении Execute скрипта</exception>
     /// <exception cref="TooManyRequestsException">Слишком много запросов</exception>
     public GroupDataLegacy GetGroupDataLegacy(long groupId)
     {
@@ -115,7 +138,7 @@ public partial class VkFramework
     /// <returns>
     ///     <see cref="GroupData" />
     /// </returns>
-    /// <exception cref="VkFrameworkMethodException">Ошибка при выполнении Execute скрипта</exception>
+    /// <exception cref="VkApiException">Ошибка при выполнении Execute скрипта</exception>
     /// <exception cref="TooManyRequestsException">Слишком много запросов</exception>
     public GroupData GetGroupData(long groupId)
     {
@@ -139,7 +162,7 @@ public partial class VkFramework
     /// </summary>
     /// <param name="id">Список айди или адресов</param>
     /// <returns>Список групп</returns>
-    /// <exception cref="VkFrameworkMethodException">Ошибка</exception>
+    /// <exception cref="VkApiException">Ошибка</exception>
     public IEnumerable<Group> GetGroups(IEnumerable<string> id)
     {
         if (id == null) throw new NullReferenceException(nameof(id));

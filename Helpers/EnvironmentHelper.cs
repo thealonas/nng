@@ -2,7 +2,7 @@
 
 namespace nng.Helpers;
 
-public class EnvironmentHelper
+public static class EnvironmentHelper
 {
     private static readonly Dictionary<string, string?> CachedEnvironmentVariables = new();
     private static bool _initialised;
