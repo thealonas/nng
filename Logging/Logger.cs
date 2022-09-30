@@ -123,11 +123,11 @@ public class Logger
     }
 
     /// <summary>
-    ///     Отправляет сообщение
+    ///     Выводит сообщение в консоль
     /// </summary>
     /// <param name="message">Сообщение</param>
     /// <param name="withoutTitle">Без заголовка</param>
-    /// <param name="skipLine">Пропустить пространотво</param>
+    /// <param name="skipLine">Пропустить пространство</param>
     /// <param name="withoutColor">Без цвета</param>
     public void Log(Message message, bool withoutTitle = false, bool skipLine = true, bool withoutColor = false)
     {
@@ -138,7 +138,7 @@ public class Logger
                 ProcessMessage(message.Text, message.Name, ConsoleColor.Green, withoutTitle, skipLine, withoutColor);
                 break;
             case LogType.InfoVersionShow:
-                ProcessMessage($"v{GetVersion()} | {message}", message.Name,
+                ProcessMessage($"v{GetVersion()} | {message.Text}", message.Name,
                     ConsoleColor.Green, withoutTitle, skipLine,
                     withoutColor);
                 break;
@@ -158,7 +158,7 @@ public class Logger
     }
 
     /// <summary>
-    ///     Логгировать исключение
+    ///     Выводит исплючение в консоль.
     /// </summary>
     /// <param name="e">Исключение</param>
     public void Log(Exception e)
@@ -168,7 +168,7 @@ public class Logger
 
 
     /// <summary>
-    ///     Очистить
+    ///     Очищает консоль.
     /// </summary>
     public void Clear()
     {
@@ -177,7 +177,7 @@ public class Logger
 
 
     /// <summary>
-    ///     Очистить и вывести сообщения
+    ///     Очищает консоль и выводит сообщения.
     /// </summary>
     /// <param name="messages">Сообщения</param>
     public void Clear(IReadOnlyCollection<Message> messages)
@@ -188,7 +188,7 @@ public class Logger
 
 
     /// <summary>
-    ///     Ждать вывода пользователя
+    ///     Ожидает вывода сообщения.
     /// </summary>
     public void Idle()
     {

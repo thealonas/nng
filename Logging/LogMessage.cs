@@ -21,4 +21,9 @@ public class Message
     {
         return string.IsNullOrEmpty(Text) || string.IsNullOrWhiteSpace(Text);
     }
+
+    public override string ToString()
+    {
+        return Text;
+    }
 }
