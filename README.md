@@ -11,7 +11,7 @@
 
 Во всех проектах nng используется единый файл, в котором содержится информация как о группах, так и о заблокированных пользователях:
 
-```
+```json
 {
   "$schema": "https://raw.githubusercontent.com/MrAlonas/nng/master/schema.json",
   "lst": [
@@ -21,19 +21,28 @@
   "bnnd": [
     {
       "id": 1,
-      "priority": 4,
-      "warned": 1,
       "name": "Павел Дуров",
+      "priority": 4,
+      "bot": false,
+      "warned": 1,
       "compliant": [
         23000
-      ]
+      ],
+      "deleted": false
     },
     {
       "id": 2,
-      "priority": 1,
-      "warned": 0,
       "name": "Александра Владимирова",
-      "deleted": 1
+      "priority": 1,
+      "bot": true,
+      "warned": 0,
+      "deleted": true
+    }
+  ],
+  "thx": [
+    {
+      "id": 3,
+      "name": "Вячеслав"
     }
   ]
 }

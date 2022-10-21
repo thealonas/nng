@@ -7,7 +7,7 @@ namespace nng.VkFrameworks;
 /// </summary>
 public static class VkFrameworkExecution
 {
-    public static int WaitTime { get; set; }
+    public static TimeSpan WaitTime { get; set; }
 
     /// <summary>
     ///     Выполнить действие с возвращаемым значением
@@ -67,13 +67,13 @@ public static class VkFrameworkExecution
         }
         catch (TooManyRequestsException)
         {
-            Task.Delay(WaitTime).Wait();
+            Task.Delay(WaitTime).GetAwaiter().GetResult();
             return BaseExecuteWithReturn(action, captchaWait);
         }
         catch (CaptchaNeededException)
         {
             if (!captchaWait) throw;
-            Task.Delay(WaitTime).Wait();
+            Task.Delay(WaitTime).GetAwaiter().GetResult();
             VkFramework.InvokeOnCaptchaWait(nameof(action), WaitTime);
             return BaseExecuteWithReturn(action, captchaWait);
         }

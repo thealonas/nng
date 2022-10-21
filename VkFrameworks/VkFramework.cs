@@ -1,4 +1,5 @@
-﻿using nng.Containers;
+﻿using Microsoft.Extensions.DependencyInjection;
+using nng.Containers;
 using nng.Exceptions;
 using VkNet;
 using VkNet.Enums;
@@ -13,14 +14,14 @@ namespace nng.VkFrameworks;
 
 public class CaptchaEventArgs : EventArgs
 {
-    public CaptchaEventArgs(string methodName, int secondsToWait)
+    public CaptchaEventArgs(string methodName, TimeSpan secondsToWait)
     {
         MethodName = methodName;
         SecondsToWait = secondsToWait;
     }
 
     public string MethodName { get; }
-    public int SecondsToWait { get; }
+    public TimeSpan SecondsToWait { get; }
 }
 
 public partial class VkFramework
@@ -33,6 +34,14 @@ public partial class VkFramework
         Authorize(token);
     }
 
+    public VkFramework(string token, IServiceCollection collection)
+    {
+        Token = token;
+        Api = new VkApi(collection);
+        CurrentUser = new User();
+        Authorize(token);
+    }
+
     public VkFramework()
     {
         Token = string.Empty;
@@ -40,7 +49,17 @@ public partial class VkFramework
         Api.RequestsPerSecond = 1;
         CurrentUser = Api.Users.Get(ArraySegment<string>.Empty, ProfileFields.All).First();
         Api.UserId = CurrentUser.Id;
-        CaptchaSecondsToWait = 10;
+        CaptchaSecondsToWait = TimeSpan.FromSeconds(10);
+    }
+
+    public VkFramework(IServiceCollection collection)
+    {
+        Token = string.Empty;
+        Api = new VkApi(collection);
+        Api.RequestsPerSecond = 1;
+        CurrentUser = Api.Users.Get(ArraySegment<string>.Empty, ProfileFields.All).First();
+        Api.UserId = CurrentUser.Id;
+        CaptchaSecondsToWait = TimeSpan.FromSeconds(10);
     }
 
     /// <summary>
@@ -62,7 +81,7 @@ public partial class VkFramework
     ///     Кол-во секунд, которое нужно ожидать при капчте (если <see cref="SetCaptchaSolver">CaptchaSolver</see> не
     ///     установлен)
     /// </summary>
-    public static int CaptchaSecondsToWait
+    public static TimeSpan CaptchaSecondsToWait
     {
         get => VkFrameworkExecution.WaitTime;
         set => VkFrameworkExecution.WaitTime = value;
@@ -78,12 +97,12 @@ public partial class VkFramework
         Api.RequestsPerSecond = 1;
         CurrentUser = Api.Users.Get(ArraySegment<string>.Empty, ProfileFields.All).First();
         Api.UserId = CurrentUser.Id;
-        CaptchaSecondsToWait = 10;
+        CaptchaSecondsToWait = TimeSpan.FromSeconds(10);
     }
 
     public static event EventHandler<CaptchaEventArgs>? OnCaptchaWait;
 
-    public static void InvokeOnCaptchaWait(string methodName, int secondsToWait)
+    public static void InvokeOnCaptchaWait(string methodName, TimeSpan secondsToWait)
     {
         OnCaptchaWait?.Invoke(null, new CaptchaEventArgs(methodName, secondsToWait));
     }

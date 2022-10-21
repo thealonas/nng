@@ -11,9 +11,11 @@ public struct UserModel
 
     [JsonProperty("priority")] public BanPriority Priority;
 
+    [JsonProperty("bot")] public bool BotBan;
+
     [JsonProperty("warned")] public int Warnings;
 
     [JsonProperty("compliant")] public long[]? Complaint;
 
-    [JsonProperty("deleted")] public long? Deleted;
+    [JsonProperty("deleted")] public bool Deleted;
 }

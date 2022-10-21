@@ -21,7 +21,8 @@ public partial class VkFrameworkHttp
         _random = new Random();
     }
 
-    private Dictionary<string, string?> FormQuery(string? message, string? keyboard, long peer)
+    private Dictionary<string, string?> FormQuery(string? message, string? keyboard, long peer,
+        bool doNotParseLinks = true)
     {
         return new Dictionary<string, string?>
         {
@@ -29,7 +30,7 @@ public partial class VkFrameworkHttp
             {"peer_id", peer.ToString()},
             {"message", message},
             {"keyboard", keyboard},
-            {"dont_parse_links", "1"},
+            {"dont_parse_links", doNotParseLinks ? "1" : "0"},
             {"access_token", _token},
             {"v", UsingVkApiVersion}
         };
@@ -41,12 +42,13 @@ public partial class VkFrameworkHttp
     /// <param name="message">Сообщение</param>
     /// <param name="keyboard">Клавиатура</param>
     /// <param name="peer">Диалог</param>
+    /// <param name="doNotParseLinks">Параметр Dont Parse Links</param>
     /// <exception cref="VkFrameworkMethodException">Ошибка</exception>
-    public void SendMessage(string? message, string? keyboard, long peer)
+    public void SendMessage(string? message, string? keyboard, long peer, bool doNotParseLinks)
     {
         try
         {
-            var values = FormQuery(message, keyboard, peer);
+            var values = FormQuery(message, keyboard, peer, doNotParseLinks);
             var post = new FormUrlEncodedContent(values);
             var responseObject = _client.PostAsync(VkApiEndpoint, post);
             var text = responseObject.Result.Content.ReadAsStringAsync().Result;
