@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using nng.Containers;
 using nng.Exceptions;
 using VkNet;
@@ -122,7 +124,7 @@ public partial class VkFramework
     /// <param name="solver">ICaptchaSolver</param>
     public void SetCaptchaSolver(ICaptchaSolver solver)
     {
-        Api = new VkApi(null, solver);
+        Api = new VkApi(new Logger<VkApi>(new NullLoggerFactory()), solver);
         Api.Authorize(new ApiAuthParams
         {
             AccessToken = Token
@@ -193,10 +195,10 @@ public partial class VkFramework
     /// <param name="group">Группа</param>
     /// <param name="post">Пост</param>
     /// <exception cref="VkApiException">Ошибка в методе</exception>
-    public void Repost(Group group, string post)
+    public RepostResult Repost(Group group, string post)
     {
         if (group == null) throw new NullReferenceException(nameof(group));
-        Repost(group.Id, post);
+        return Repost(group.Id, post);
     }
 
     /// <summary>
@@ -205,9 +207,9 @@ public partial class VkFramework
     /// <param name="group">Группа</param>
     /// <param name="post">Пост</param>
     /// <exception cref="VkApiException">Ошибка в методе</exception>
-    public void Repost(long group, string post)
+    public RepostResult Repost(long group, string post)
     {
-        VkFrameworkExecution.Execute(() => Api.Wall.Repost(post, string.Empty, group, false));
+        return VkFrameworkExecution.ExecuteWithReturn(() => Api.Wall.Repost(post, string.Empty, group, false));
     }
 
     /// <summary>

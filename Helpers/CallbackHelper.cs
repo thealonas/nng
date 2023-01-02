@@ -20,8 +20,10 @@ public class CallbackHelper
     public CallbackHelper(IServiceCollection collection)
     {
         var provider = collection.BuildServiceProvider();
-        _framework = (VkFramework) provider.GetService(typeof(VkFramework));
-        _logger = (LoggerWrapper) provider.GetService(typeof(LoggerWrapper));
+        _framework = (VkFramework) (provider.GetService(typeof(VkFramework)) ??
+                                    throw new ArgumentNullException(nameof(VkFramework)));
+        _logger = (LoggerWrapper) (provider.GetService(typeof(LoggerWrapper)) ??
+                                   throw new ArgumentNullException(nameof(LoggerWrapper)));
     }
 
     private void SetCallback(Group group, CallbackOperation operation, bool targetStatus, bool isAllowed = true)

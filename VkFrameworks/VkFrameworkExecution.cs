@@ -67,14 +67,14 @@ public static class VkFrameworkExecution
         }
         catch (TooManyRequestsException)
         {
-            Task.Delay(WaitTime).GetAwaiter().GetResult();
+            Task.Delay(Constants.Constants.TooManyRequestsWait).GetAwaiter().GetResult();
             return BaseExecuteWithReturn(action, captchaWait);
         }
         catch (CaptchaNeededException)
         {
             if (!captchaWait) throw;
-            Task.Delay(WaitTime).GetAwaiter().GetResult();
             VkFramework.InvokeOnCaptchaWait(nameof(action), WaitTime);
+            Task.Delay(WaitTime).GetAwaiter().GetResult();
             return BaseExecuteWithReturn(action, captchaWait);
         }
     }
@@ -88,14 +88,14 @@ public static class VkFrameworkExecution
         }
         catch (TooManyRequestsException)
         {
-            Task.Delay(WaitTime).GetAwaiter().GetResult();
+            Task.Delay(Constants.Constants.TooManyRequestsWait).GetAwaiter().GetResult();
             BaseExecute(action, captchaWait);
         }
         catch (CaptchaNeededException)
         {
             if (!captchaWait) throw;
-            Task.Delay(WaitTime).Wait();
             VkFramework.InvokeOnCaptchaWait(nameof(action), WaitTime);
+            Task.Delay(WaitTime).Wait();
             BaseExecute(action, captchaWait);
         }
     }

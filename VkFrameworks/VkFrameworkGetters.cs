@@ -201,4 +201,28 @@ public partial class VkFramework
 
         return output;
     }
+
+    /// <summary>
+    ///     Получить все посты из сообщества, используя VkScript
+    /// </summary>
+    /// <param name="group">Сообщество</param>
+    /// <returns>Список постов в <see cref="WallGetObject" /></returns>
+    /// <exception cref="InvalidOperationException">Ошибка</exception>
+    public WallGetObject GetAllPostsVkScript(long group)
+    {
+        var script = VkScripts.GetAllPostsVkScript
+            .Replace("{OFFSET}", "0")
+            .Replace("{GROUP}", (-group).ToString());
+        var result = VkFrameworkExecution.ExecuteWithReturn(() =>
+        {
+            var response = Api.Execute.Execute(script);
+            return new WallGetObject
+            {
+                TotalCount = response["count"],
+                WallPosts = response["items"].ToListOf(Post.FromJson).ToReadOnlyCollection()
+            };
+        });
+
+        return result ?? throw new InvalidOperationException();
+    }
 }
