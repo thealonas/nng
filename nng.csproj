@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -9,7 +9,7 @@
     <PropertyGroup>
         <OutputType>Library</OutputType>
         <PackageId>nng</PackageId>
-        <PackageVersion>1.6.0</PackageVersion>
+        <PackageVersion>2.0.0</PackageVersion>
         <Description>Ядро, используемое во всех проектах nng.</Description>
         <Authors>likhner;RomanKochetov</Authors>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -22,6 +22,7 @@
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="Redis.OM" Version="0.5.0"/>
         <PackageReference Include="VkNet" Version="1.72.0"/>
     </ItemGroup>
 

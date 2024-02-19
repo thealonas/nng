@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using nng.Containers;
 using nng.Exceptions;
 using VkNet;
 using VkNet.Enums;
@@ -10,6 +9,7 @@ using VkNet.Enums.SafetyEnums;
 using VkNet.Exception;
 using VkNet.Model;
 using VkNet.Model.RequestParams;
+using VkNet.Utils;
 using VkNet.Utils.AntiCaptcha;
 
 namespace nng.VkFrameworks;
@@ -49,8 +49,7 @@ public partial class VkFramework
         Token = string.Empty;
         Api = new VkApi();
         Api.RequestsPerSecond = 1;
-        CurrentUser = Api.Users.Get(ArraySegment<string>.Empty, ProfileFields.All).First();
-        Api.UserId = CurrentUser.Id;
+        CurrentUser = new User();
         CaptchaSecondsToWait = TimeSpan.FromSeconds(10);
     }
 
@@ -295,10 +294,11 @@ public partial class VkFramework
     /// <exception cref="VkApiException">Ошибка в методе</exception>
     public WallContentAccess SetWall(long group, WallContentAccess state)
     {
-        var code = VkScripts.SetWallStatusVkScript
-            .Replace("{GROUP}", group.ToString())
-            .Replace("{WALL}", ((int) state).ToString());
-        var response = VkFrameworkExecution.ExecuteWithReturn(() => Api.Execute.Execute(code));
+        var response = VkFrameworkExecution.ExecuteWithReturn(() => Api.Call("execute.setWall", new VkParameters
+        {
+            {"group", group},
+            {"target_wall", (int) state}
+        }));
         return (WallContentAccess) int.Parse(response["old_wall"].ToString());
     }
 

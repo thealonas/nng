@@ -1,5 +1,4 @@
-﻿using nng.Containers;
-using nng.Models;
+﻿using nng.Models;
 using VkNet.Enums.Filters;
 using VkNet.Enums.SafetyEnums;
 using VkNet.Exception;
@@ -61,21 +60,26 @@ public partial class VkFramework
     /// <exception cref="VkApiException">Ошибка</exception>
     public IEnumerable<User> GetBanned(long groupId)
     {
-        var banned = VkFrameworkExecution.ExecuteWithReturn(() => Api.Groups.GetBanned(groupId, 0, 200));
-        if (banned.TotalCount <= 200)
-            return banned.Where(x => x.Type == SearchResultType.Profile).Select(x => x.Profile);
-
-        var output = new List<User>();
-        var divisor = (int) MathF.Ceiling(200 / (float) banned.TotalCount) + 1;
-        for (var i = 0; i < divisor; i++)
+        var banned = VkFrameworkExecution.ExecuteWithReturn(()
+            => Api.Call("execute.getAllBanned", new VkParameters
+            {
+                {"group", groupId}
+            })).ToCollectionOf(response =>
         {
-            var collection = VkFrameworkExecution.ExecuteWithReturn(() => Api.Groups.GetBanned(groupId, i * 200, 200))
-                .Where(x => x.Type == SearchResultType.Profile)
-                .Select(x => x.Profile);
-            output.AddRange(collection);
-        }
+            var banInfo = BanInfo.FromJson(response["ban_info"]);
+            var profile = User.FromJson(response["profile"]);
+            return new GetBannedResult
+            {
+                BanInfo = banInfo,
+                Group = new Group
+                {
+                    Id = groupId
+                },
+                Profile = profile
+            };
+        });
 
-        return output;
+        return banned.Where(x => x.Profile is not null).Select(x => x.Profile);
     }
 
     /// <summary>
@@ -84,6 +88,7 @@ public partial class VkFramework
     /// <param name="groupId">Группа</param>
     /// <returns>Список юзеров</returns>
     /// <exception cref="VkApiException">Ошибка</exception>
+    [Obsolete("Предпочтительнее GetBanned")]
     public IEnumerable<GetBannedResult> GetBannedAlt(long groupId)
     {
         var banned = VkFrameworkExecution.ExecuteWithReturn(() => Api.Groups.GetBanned(groupId, 0, 200));
@@ -108,34 +113,6 @@ public partial class VkFramework
     /// </summary>
     /// <param name="groupId">Айди группы</param>
     /// <returns>
-    ///     <see cref="GroupDataLegacy" />
-    /// </returns>
-    /// <exception cref="VkApiException">Ошибка при выполнении Execute скрипта</exception>
-    /// <exception cref="TooManyRequestsException">Слишком много запросов</exception>
-    public GroupDataLegacy GetGroupDataLegacy(long groupId)
-    {
-        var response = VkFrameworkExecution.ExecuteWithReturn(() =>
-            Api.Execute.Execute(VkScripts.GetAllMembersLegacyVkScript.Replace("{GROUP}", groupId.ToString())));
-        var shortName = GetShortName(groupId);
-
-        var data = new GroupDataLegacy
-        {
-            AllUsers = response["users"].ToListOf(x => int.Parse(x.ToString())),
-            Managers = response["managers"].ToListOf(User.FromJson),
-            Count = (int) response["count"],
-            ManagerCount = (int) response["manager_count"],
-            ShortName = shortName
-        };
-
-        return data;
-    }
-
-    /// <summary>
-    ///     Возвращает информацию о сообществе через Execute
-    ///     Забаненные пользователи возвращаются, но роли будут недоступны
-    /// </summary>
-    /// <param name="groupId">Айди группы</param>
-    /// <returns>
     ///     <see cref="GroupData" />
     /// </returns>
     /// <exception cref="VkApiException">Ошибка при выполнении Execute скрипта</exception>
@@ -143,7 +120,10 @@ public partial class VkFramework
     public GroupData GetGroupData(long groupId)
     {
         var response = VkFrameworkExecution.ExecuteWithReturn(() =>
-            Api.Execute.Execute(VkScripts.GetAllMembersVkScript.Replace("{GROUP}", groupId.ToString())));
+            Api.Call("execute.getAllMembers", new VkParameters
+            {
+                {"group", groupId}
+            }));
         var shortName = GetShortName(groupId);
         var data = new GroupData
         {
@@ -175,6 +155,7 @@ public partial class VkFramework
     /// </summary>
     /// <param name="group">Группа</param>
     /// <returns><see cref="IEnumerable{T}">Список</see> <see cref="Post">постов</see> сообщества</returns>
+    [Obsolete("Предпочительнее VkScrpit")]
     public IEnumerable<Post> GetAllPosts(long group)
     {
         var posts = VkFrameworkExecution.ExecuteWithReturn(() => Api.Wall.Get(new WallGetParams
@@ -210,12 +191,12 @@ public partial class VkFramework
     /// <exception cref="InvalidOperationException">Ошибка</exception>
     public WallGetObject GetAllPostsVkScript(long group)
     {
-        var script = VkScripts.GetAllPostsVkScript
-            .Replace("{OFFSET}", "0")
-            .Replace("{GROUP}", (-group).ToString());
         var result = VkFrameworkExecution.ExecuteWithReturn(() =>
         {
-            var response = Api.Execute.Execute(script);
+            var response = Api.Call("execute.getAllPosts", new VkParameters
+            {
+                {"group", group}
+            });
             return new WallGetObject
             {
                 TotalCount = response["count"],

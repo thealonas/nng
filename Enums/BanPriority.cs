@@ -6,6 +6,5 @@ public enum BanPriority
     Green,
     Teal,
     Orange,
-    Red,
-    Local
+    Red
 }
